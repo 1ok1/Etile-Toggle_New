@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/iconLayout"
+                android:layout_width="wrap_content"
+              android:layout_height="wrap_content">
+<ImageView android:id="@+id/iconImage"
+           android:background="@drawable/round_blue"
+           android:layout_width="60dp"
+           android:layout_height="60dp"/>
+    <typeface.ZeroHourTextView
+              android:layout_width="wrap_content"
+              android:layout_centerInParent="true"
+              android:textColor="@android:color/white"
+              android:textSize="20sp"
+              android:id="@+id/batteryLevel"
+              android:textStyle="bold"
+              android:layout_height="wrap_content"
+              android:text="00"/>
+
+
+
+</RelativeLayout>
