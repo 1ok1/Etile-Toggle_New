@@ -22,8 +22,7 @@ public class BlueetoothService extends Service {
         else if(isEnabled) {
             bluetoothAdapter.disable();
         }
-        Intent netWifiSilentIntent1 = new Intent(ToggleConstants.NET_WIFI_SILENT);
-        Log.i("NetWifiSilentReceiver", "broadcast intiated");
+        Intent netWifiSilentIntent1 = new Intent(ToggleConstants.BLUETOOTH_BROADCAST);
         getApplicationContext().sendBroadcast(netWifiSilentIntent1);
         return START_NOT_STICKY;
     }

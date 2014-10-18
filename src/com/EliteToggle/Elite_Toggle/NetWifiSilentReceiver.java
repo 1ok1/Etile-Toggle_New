@@ -22,13 +22,13 @@ public class NetWifiSilentReceiver extends BroadcastReceiver {
         audioManager= (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         switch (audioManager.getRingerMode()){
             case AudioManager.RINGER_MODE_NORMAL:
-                sendNetWifiSilentBroadCast();
+                sendSilentBroadCast();
                 break;
             case AudioManager.RINGER_MODE_VIBRATE:
-                sendNetWifiSilentBroadCast();
+                sendSilentBroadCast();
                 break;
             case AudioManager.RINGER_MODE_SILENT:
-                sendNetWifiSilentBroadCast();
+                sendSilentBroadCast();
                 break;
         }
         final ConnectivityManager connMgr = (ConnectivityManager) context
@@ -39,25 +39,42 @@ public class NetWifiSilentReceiver extends BroadcastReceiver {
 
         final android.net.NetworkInfo mobile = connMgr
                 .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-
-        if (wifi.isAvailable() || mobile.isAvailable()) {
+        if( mobile.isAvailable()){
+            sendNetBroadcast();
+        }else if (wifi.isAvailable() ) {
             // Do something
-            sendNetWifiSilentBroadCast();
+            sendWifiBroadCast();
         }else{
-            sendNetWifiSilentBroadCast();
+            sendNetBroadcast();
+            sendWifiBroadCast();
         }
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         boolean isEnabled = bluetoothAdapter.isEnabled();
         if ( !isEnabled) {
-            sendNetWifiSilentBroadCast();
+            sendBlutoothBroadcast();
         }
         else if(isEnabled) {
-            sendNetWifiSilentBroadCast();
+            sendBlutoothBroadcast();
         }
     }
-    public void sendNetWifiSilentBroadCast(){
-        Intent netWifiSilentIntent1 = new Intent(ToggleConstants.NET_WIFI_SILENT);
+    public void sendSilentBroadCast(){
+        Intent netWifiSilentIntent1 = new Intent(ToggleConstants.SILENT_BROADCAST);
         Log.i("NetWifiSilentReceiver", "broadcast intiated");
+        context.sendBroadcast(netWifiSilentIntent1);
+    }
+    public void sendWifiBroadCast(){
+        Intent netWifiSilentIntent1 = new Intent(ToggleConstants.WIFI_BROADCAST);
+        Log.i("NetWifiSilentReceiver", " wifi broadcast intiated");
+        context.sendBroadcast(netWifiSilentIntent1);
+    }
+    public void sendBlutoothBroadcast(){
+        Intent netWifiSilentIntent1 = new Intent(ToggleConstants.BLUETOOTH_BROADCAST);
+        Log.i("NetWifiSilentReceiver", " bluetooth broadcast intiated");
+        context.sendBroadcast(netWifiSilentIntent1);
+    }
+    public void sendNetBroadcast(){
+        Intent netWifiSilentIntent1 = new Intent(ToggleConstants.NET_BROADCAST);
+        Log.i("NetWifiSilentReceiver", " NET broadcast intiated");
         context.sendBroadcast(netWifiSilentIntent1);
     }
 }

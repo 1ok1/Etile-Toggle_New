@@ -14,6 +14,7 @@ import android.hardware.Camera;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.IBinder;
 import android.provider.MediaStore;
@@ -55,7 +56,22 @@ public class widgetService extends Service {
     IconService iconService;
     TextView widgetBatteryLevel;
     BluetoothAdapter bluetoothAdapter;
-    private BroadcastReceiver netWifiSilentReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            WifiManager wifiNetwork = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+            Log.i("widget service ","wifi change detacted"+wifiNetwork.isWifiEnabled());
+            Log.i("widget service","wifi availability"+wifiNetwork.isWifiEnabled());
+            if (wifiNetwork.isWifiEnabled()) {
+                wifi.setImageResource(R.drawable.wifi);
+                // Do something
+            }else {
+                wifi.setImageResource(R.drawable.wifi_off);
+            }
+        }
+    };
+    private BroadcastReceiver SilentReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (audioManager.getRingerMode()){
@@ -69,28 +85,31 @@ public class widgetService extends Service {
                     silent.setImageResource(R.drawable.silent);
                     break;
             }
-            final ConnectivityManager connMgr = (ConnectivityManager) context
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+//            final android.net.NetworkInfo wifiNetwork = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+//            final android.net.NetworkInfo mobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        }
+    };
+    private BroadcastReceiver netReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
 
-            final android.net.NetworkInfo wifiNetwork = connMgr
-                    .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-            final android.net.NetworkInfo mobile = connMgr
-                    .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-
-            if (wifiNetwork.isAvailable()) {
-                wifi.setImageResource(R.drawable.wifi);
-                // Do something
-            }else {
-                wifi.setImageResource(R.drawable.wifi_off);
-            }
-            if( mobile.isAvailable()){
-                internet.setImageResource(R.drawable.dataon);
+            connectivityManager  = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo()  ;
+            if(activeNetwork != null&& activeNetwork.isAvailable() && activeNetwork.isConnected()) {
+                    internet.setImageResource(R.drawable.dataon);
             }else{
-                internet.setImageResource(R.drawable.dataoff);
-             }
+                    internet.setImageResource(R.drawable.dataoff);
+            }
+        }
+    };
+    private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
             bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
             boolean isEnabled = bluetoothAdapter.isEnabled();
+            Log.i("widget service ","bluetooth change detacted"+ isEnabled);
+            Log.i("widget service","bluetoothAdapter availability"+ isEnabled);
             if ( !isEnabled) {
                 bluetooth.setImageResource(R.drawable.bluetooth_off);
             }
@@ -98,7 +117,7 @@ public class widgetService extends Service {
                 bluetooth.setImageResource(R.drawable.bluetooth_on);
             }
         }
-    };
+    } ;
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -108,7 +127,10 @@ public class widgetService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         fade_in = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
         context = getApplicationContext();
-        registerReceiver(netWifiSilentReceiver,new IntentFilter( ToggleConstants.NET_WIFI_SILENT));
+        registerReceiver(wifiReceiver,new IntentFilter( ToggleConstants.WIFI_BROADCAST));
+        registerReceiver(SilentReceiver,new IntentFilter( ToggleConstants.SILENT_BROADCAST));
+        registerReceiver(netReceiver,new IntentFilter( ToggleConstants.NET_BROADCAST));
+        registerReceiver(bluetoothReceiver,new IntentFilter( ToggleConstants.BLUETOOTH_BROADCAST));
         audioManager= (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         params = new WindowManager.LayoutParams(
@@ -388,6 +410,9 @@ public class widgetService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(netWifiSilentReceiver);
+        unregisterReceiver(SilentReceiver);
+        unregisterReceiver(wifiReceiver);
+        unregisterReceiver(netReceiver);
+        unregisterReceiver(bluetoothReceiver);
     }
 }

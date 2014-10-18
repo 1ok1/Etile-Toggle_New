@@ -22,8 +22,7 @@ public class WifiService extends Service {
         } else {
             wifiManager.setWifiEnabled(true);
         }
-        Intent netWifiSilentIntent1 = new Intent(ToggleConstants.NET_WIFI_SILENT);
-        Log.i("NetWifiSilentReceiver", "broadcast intiated");
+        Intent netWifiSilentIntent1 = new Intent(ToggleConstants.WIFI_BROADCAST);
         getApplicationContext().sendBroadcast(netWifiSilentIntent1);
         return START_NOT_STICKY;
     }
